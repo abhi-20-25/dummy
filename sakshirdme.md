@@ -60,6 +60,243 @@ graph TB
     AA --> CC
 ```
 
+### Camera-Model Integration Architecture
+
+```mermaid
+sequenceDiagram
+    participant F as Frontend
+    participant B as Backend API
+    participant DB as Database
+    participant M as Detection Models
+
+    F->>B: POST /api/cameras
+    Note over F,B: Camera name, RTSP URL, apps, model_config
+    B->>DB: Store camera configuration
+    B->>M: Update cameras.json for each app
+    B->>F: Return camera configuration
+```
+
+```mermaid
+sequenceDiagram
+    participant B as Backend API
+    participant CF as Camera Manager
+    participant DM as Detection Models
+    participant Y as YOLO Models
+
+    B->>CF: update_app_cameras_config()
+    CF->>CF: Create cameras.json
+    CF->>DM: Load camera configurations
+    DM->>Y: Load YOLO models with settings
+    DM->>CF: Process camera streams
+```
+
+## 🔗 Camera-Model Integration
+
+### Overview
+
+The system implements a sophisticated camera-model integration that ensures seamless communication between frontend camera configurations and detection models. This integration enables:
+
+- **Real-time camera configuration** from frontend to detection models
+- **Dynamic model settings** based on camera configurations
+- **Automatic camera.json generation** for each detection app
+- **RTSP stream validation** before deployment
+- **Multi-app camera support** with individual configurations
+
+### Integration Components
+
+#### 1. Frontend Camera Management
+```javascript
+// Camera creation with model integration
+const cameraData = {
+  name: "Security Camera 1",
+  rtsp_url: "rtsp://admin:password@192.168.1.100:554/stream1",
+  location: "Main Entrance",
+  enabled: true,
+  apps: ["cash_detector", "theft_detector"],
+  model_config: {
+    confidence_threshold: 0.6,
+    frame_skip: 3
+  }
+};
+```
+
+#### 2. Backend Configuration Management
+```python
+# Camera configuration storage and validation
+def add_camera_with_model_integration(camera: CameraConfig):
+    # Validate camera configuration
+    # Store in database
+    # Update all associated apps
+    # Create cameras.json for each app
+    return camera
+
+# Model configuration for each detection system
+MODEL_CONFIGS = {
+    'cash_detector': {
+        'model_path': '/app/Cash_Detection_Docker/27-july-2025.pt',
+        'model_type': 'yolo',
+        'classes': ['cash', 'bill', 'money'],
+        'confidence_threshold': 0.55,
+        'frame_skip': 3
+    },
+    'theft_detector': {
+        'model_path': '/app/yolo-pose-shoplifting/models/best.pt',
+        'model_type': 'yolo_pose',
+        'classes': ['person', 'shoplifting', 'suspicious'],
+        'confidence_threshold': 0.6,
+        'frame_skip': 2
+    },
+    'monitor_detector': {
+        'model_path': '/app/monitor_detection_system/monitor_model.pt',
+        'model_type': 'custom',
+        'classes': ['monitor_on', 'monitor_off'],
+        'confidence_threshold': 0.7,
+        'frame_skip': 5
+    }
+}
+```
+
+#### 3. Detection Model Integration
+```python
+# Each detection model reads camera configurations
+class MultiCameraCashDetector:
+    def setup_model(self):
+        # Get model settings from camera manager
+        settings = self.camera_manager.get_settings()
+        model_path = settings.get('model_path', MODEL_PATH)
+        confidence_threshold = settings.get('confidence_threshold', CONFIDENCE_THRESHOLD)
+        
+        self.model = YOLO(model_path)
+        self.confidence_threshold = confidence_threshold
+
+    def process_camera(self, camera_id):
+        # Get frame skip from settings
+        settings = self.camera_manager.get_settings()
+        frame_skip = settings.get('frame_skip', FRAME_SKIP)
+        
+        # Process camera with model settings
+        if self.frame_counters[camera_id] % frame_skip == 0:
+            detections, processing_time = self.detect_cash(frame)
+```
+
+### Configuration Files
+
+#### cameras.json Structure
+Each detection app has its own `cameras.json` file:
+
+```json
+{
+  "cameras": [
+    {
+      "id": "Security Camera 1",
+      "name": "Security Camera 1",
+      "location": "Main Entrance",
+      "rtsp_url": "rtsp://admin:password@192.168.1.100:554/stream1",
+      "enabled": true,
+      "model_config": {
+        "model_path": "/app/Cash_Detection_Docker/27-july-2025.pt",
+        "model_type": "yolo",
+        "classes": ["cash", "bill", "money"],
+        "confidence_threshold": 0.55,
+        "frame_skip": 3
+      }
+    }
+  ],
+  "settings": {
+    "frame_skip": 3,
+    "confidence_threshold": 0.55,
+    "recording_duration": 10,
+    "max_cameras": 1,
+    "model_path": "/app/Cash_Detection_Docker/27-july-2025.pt",
+    "model_type": "yolo",
+    "classes": ["cash", "bill", "money"]
+  }
+}
+```
+
+### Integration Process
+
+#### 1. Camera Addition Process
+```python
+def add_camera_with_model_integration(camera: CameraConfig):
+    """Complete process of adding camera with model integration"""
+    
+    # 1. Validate camera configuration
+    if not camera.name or not camera.rtsp_url:
+        raise ValueError("Camera name and RTSP URL are required")
+    
+    # 2. Store camera in backend
+    camera_store.append(camera)
+    update_camera_in_db(camera)
+    
+    # 3. Update all associated apps
+    for app_name in camera.apps:
+        if app_name in APP_DIRS:
+            # Get all cameras for this app
+            app_cameras = [cam.name for cam in camera_store 
+                          if app_name in cam.apps and cam.enabled]
+            
+            # Update camera configuration for the app
+            update_app_cameras_config(app_name, app_cameras)
+    
+    return camera
+```
+
+#### 2. App Start Process
+```python
+def start_app_with_camera_validation(app_name: str):
+    """Start detection app with camera validation"""
+    
+    # 1. Validate model exists
+    if not validate_model_path(app_name):
+        raise ValueError(f"Model not found for {app_name}")
+    
+    # 2. Get cameras for this app
+    app_cameras = [cam.name for cam in camera_store 
+                   if app_name in cam.apps and cam.enabled]
+    
+    if not app_cameras:
+        raise ValueError(f"No cameras configured for {app_name}")
+    
+    # 3. Update camera configuration
+    update_app_cameras_config(app_name, app_cameras)
+    
+    # 4. Start detection container
+    start_detection_container(app_name)
+    
+    return {
+        "app_name": app_name,
+        "cameras": app_cameras,
+        "model_info": get_model_info(app_name)
+    }
+```
+
+### Testing and Monitoring
+
+#### System Status API
+```bash
+# Get comprehensive camera-model status
+curl http://localhost:5000/api/system/camera-model-status
+
+# Test camera connection
+curl -X POST http://localhost:5000/api/cameras/Test%20Camera/test-connection
+
+# Test app camera configuration
+curl http://localhost:5000/api/apps/cash_detector/camera-config
+```
+
+#### Configuration Verification
+```bash
+# Check cameras.json files
+ls -la */cameras.json
+
+# Verify model files
+ls -la */models/*.pt
+
+# Check database entries
+psql -h localhost -U sakshi_user -d sakshi_ai_db -c "SELECT * FROM cameras;"
+```
+
 ## 🔄 Threading Architecture
 
 ### 1. Backend Threading Model
