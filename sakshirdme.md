@@ -15,49 +15,187 @@ graph TB
         A --> C[Live Streams]
         A --> D[App Status Dashboard]
         A --> E[Analytics Dashboard]
+        A --> F[Real-time Updates]
     end
     
     subgraph "Backend API (FastAPI)"
-        F[FastAPI Backend] --> G[Camera API]
-        F --> H[Model Management API]
-        F --> I[Detection API]
-        F --> J[Database API]
-        F --> K[Streaming API]
+        G[FastAPI Backend] --> H[Camera API]
+        G --> I[Model Management API]
+        G --> J[Detection API]
+        G --> K[Database API]
+        G --> L[Streaming API]
+        G --> M[Health Check API]
+    end
+    
+    subgraph "Database Layer"
+        N[PostgreSQL Database] --> O[Camera Configurations]
+        N --> P[Detection Logs]
+        N --> Q[Analytics Data]
+        N --> R[System Events]
+    end
+    
+    subgraph "Detection Containers"
+        S[Cash Detector Container] --> T[Multi-threaded Processing]
+        S --> U[YOLO Model: 27-july-2025.pt]
+        S --> V[Cash Tracking System]
+        S --> W[Telegram Alerts]
+        
+        X[Theft Detector Container] --> Y[Pose Analysis]
+        X --> Z[YOLO Pose: best.pt]
+        X --> AA[XGBoost Classifier]
+        X --> BB[Suspicious Activity Detection]
+        
+        CC[Monitor Detector Container] --> DD[Monitor Status Detection]
+        CC --> EE[YOLO Model: monitor_model.pt]
+        CC --> FF[Screen Status Monitoring]
+        CC --> GG[Daily Reports]
     end
     
     subgraph "Threading Architecture"
-        L[Main Thread] --> M[Background Tasks]
-        L --> N[Detection Threads]
-        L --> O[Alert Threads]
-        L --> P[Database Threads]
+        HH[Main Thread] --> II[Background Tasks]
+        HH --> JJ[Detection Threads]
+        HH --> KK[Alert Threads]
+        HH --> LL[Database Threads]
+        HH --> MM[Scheduler Threads]
     end
     
-    subgraph "YOLO Model Integration"
-        Q[Cash Detection Model] --> R[YOLO: 27-july-2025.pt]
-        S[Theft Detection Model] --> T[YOLO Pose: best.pt]
-        U[Monitor Detection Model] --> V[Custom Model: monitor_model.pt]
+    subgraph "External Services"
+        NN[Telegram Bot] --> OO[Alert Notifications]
+        PP[RTSP Cameras] --> QQ[Video Streams]
+        RR[GPU Acceleration] --> SS[Model Inference]
     end
     
-    subgraph "Detection Systems"
-        W[Cash Detector Container] --> X[Multi-threaded Processing]
-        Y[Theft Detector Container] --> Z[Pose Analysis]
-        AA[Monitor Detector Container] --> BB[Status Monitoring]
+    A --> G
+    G --> N
+    G --> S
+    G --> X
+    G --> CC
+    S --> NN
+    X --> NN
+    CC --> NN
+    PP --> S
+    PP --> X
+    PP --> CC
+    RR --> S
+    RR --> X
+    RR --> CC
+```
+
+### Detailed Model Architecture Flows
+
+#### 1. Cash Detection Model Flow
+
+```mermaid
+graph TB
+    subgraph "Cash Detection Pipeline"
+        A[RTSP Camera Stream] --> B[Frame Capture]
+        B --> C[Frame Preprocessing]
+        C --> D[YOLO Model Inference]
+        D --> E[Cash Detection Results]
+        E --> F[Confidence Filtering]
+        F --> G[Object Tracking]
+        G --> H[Duplicate Detection Check]
+        H --> I[Alert Generation]
+        I --> J[Telegram Notification]
+        I --> K[Screenshot Capture]
+        I --> L[Database Logging]
     end
     
-    subgraph "Database & Storage"
-        CC[PostgreSQL Database] --> DD[Detection Logs]
-        CC --> EE[Analytics Data]
-        CC --> FF[Camera Configurations]
+    subgraph "Cash Detection Components"
+        M[MultiCameraCashDetector] --> N[Camera Manager]
+        M --> O[Cash Tracker]
+        M --> P[Telegram Notifier]
+        M --> Q[Database Models]
+        
+        N --> R[Camera Configuration]
+        O --> S[Object Tracking]
+        P --> T[Alert System]
+        Q --> U[Detection Logs]
     end
     
-    A --> F
-    F --> L
-    Q --> W
-    S --> Y
-    U --> AA
-    W --> CC
-    Y --> CC
-    AA --> CC
+    subgraph "Performance Optimization"
+        V[Frame Skipping] --> W[GPU Acceleration]
+        W --> X[Memory Management]
+        X --> Y[Threading]
+        Y --> Z[Queue Management]
+    end
+```
+
+#### 2. Theft Detection Model Flow
+
+```mermaid
+graph TB
+    subgraph "Theft Detection Pipeline"
+        A[RTSP Camera Stream] --> B[Frame Capture]
+        B --> C[Pose Detection]
+        C --> D[YOLO Pose Model]
+        D --> E[Keypoint Extraction]
+        E --> F[Feature Engineering]
+        F --> G[XGBoost Classification]
+        G --> H[Suspicious Activity Detection]
+        H --> I[Person ID Generation]
+        I --> J[Duplicate Detection]
+        J --> K[Alert Generation]
+        K --> L[Telegram Notification]
+        K --> M[Recording Start]
+        K --> N[Database Logging]
+    end
+    
+    subgraph "Theft Detection Components"
+        O[TheftAppDetector] --> P[Pose Model]
+        O --> Q[XGBoost Classifier]
+        O --> R[Alert Worker]
+        O --> S[Daily Reporter]
+        
+        P --> T[Keypoint Analysis]
+        Q --> U[Behavior Classification]
+        R --> V[Telegram Alerts]
+        S --> W[Daily Reports]
+    end
+    
+    subgraph "Advanced Features"
+        X[Person Tracking] --> Y[Behavior Analysis]
+        Y --> Z[Suspicious Pattern Detection]
+        Z --> AA[Real-time Alerts]
+        AA --> BB[Recording Management]
+    end
+```
+
+#### 3. Monitor Detection Model Flow
+
+```mermaid
+graph TB
+    subgraph "Monitor Detection Pipeline"
+        A[RTSP Camera Stream] --> B[Frame Capture]
+        B --> C[Monitor Detection]
+        C --> D[YOLO Model Inference]
+        D --> E[Monitor Status Classification]
+        E --> F[On/Off Detection]
+        F --> G[Cooldown Check]
+        G --> H[Alert Generation]
+        H --> I[Telegram Notification]
+        H --> J[Screenshot Capture]
+        H --> K[Database Logging]
+    end
+    
+    subgraph "Monitor Detection Components"
+        L[MonitorDetector] --> M[Monitor Model]
+        L --> N[Status Tracker]
+        L --> O[Alert System]
+        L --> P[Daily Reporter]
+        
+        M --> Q[Screen Status]
+        N --> R[State Management]
+        O --> S[Telegram Alerts]
+        P --> T[Daily Reports]
+    end
+    
+    subgraph "Monitoring Features"
+        U[Screen Status Tracking] --> V[Off Detection]
+        V --> W[Alert Cooldown]
+        W --> X[Daily Statistics]
+        X --> Y[Performance Monitoring]
+    end
 ```
 
 ### Camera-Model Integration Architecture
@@ -89,6 +227,290 @@ sequenceDiagram
     DM->>Y: Load YOLO models with settings
     DM->>CF: Process camera streams
 ```
+
+### Container Architecture
+
+```mermaid
+graph TB
+    subgraph "Docker Containers"
+        A[Backend Container] --> B[FastAPI Server]
+        A --> C[PostgreSQL Client]
+        A --> D[Camera Manager]
+        
+        E[Cash Detector Container] --> F[YOLO Model]
+        E --> G[Multi-threaded Processing]
+        E --> H[Telegram Integration]
+        
+        I[Theft Detector Container] --> J[YOLO Pose Model]
+        I --> K[XGBoost Classifier]
+        I --> L[Pose Analysis]
+        
+        M[Monitor Detector Container] --> N[Monitor Model]
+        M --> O[Status Monitoring]
+        M --> P[Daily Reports]
+    end
+    
+    subgraph "Database Container"
+        Q[PostgreSQL Database] --> R[Camera Configurations]
+        Q --> S[Detection Logs]
+        Q --> T[Analytics Data]
+    end
+    
+    subgraph "Frontend Container"
+        U[React App] --> V[Camera Management]
+        U --> W[Live Streams]
+        U --> X[App Status]
+        U --> Y[Analytics]
+    end
+    
+    subgraph "Network Communication"
+        Z[sakshi_network] --> AA[Container Communication]
+        AA --> BB[API Calls]
+        BB --> CC[Real-time Updates]
+    end
+```
+
+### Data Flow Architecture
+
+```mermaid
+graph LR
+    subgraph "Input Layer"
+        A[RTSP Cameras] --> B[Video Streams]
+        C[Frontend Config] --> D[Camera Settings]
+        E[Model Files] --> F[YOLO Models]
+    end
+    
+    subgraph "Processing Layer"
+        G[Frame Capture] --> H[Preprocessing]
+        H --> I[Model Inference]
+        I --> J[Post-processing]
+        J --> K[Decision Making]
+    end
+    
+    subgraph "Output Layer"
+        L[Alerts] --> M[Telegram Notifications]
+        N[Logs] --> O[Database Storage]
+        P[Screenshots] --> Q[File Storage]
+        R[Analytics] --> S[Frontend Dashboard]
+    end
+    
+    B --> G
+    D --> G
+    F --> I
+    K --> L
+    K --> N
+    K --> P
+    K --> R
+```
+
+### Database Architecture
+
+```mermaid
+graph TB
+    subgraph "PostgreSQL Database"
+        A[Cameras Table] --> B[camera_id, name, rtsp_url, location, enabled, apps, model_config]
+        C[Detections Table] --> D[detection_id, camera_id, detection_type, confidence, bbox, timestamp]
+        E[Alerts Table] --> F[alert_id, detection_id, alert_type, message, status, sent_at]
+        G[System Logs Table] --> H[log_id, level, message, camera_id, created_at]
+        I[Analytics Table] --> J[analytics_id, camera_id, metric_type, value, timestamp]
+    end
+    
+    subgraph "Database Relationships"
+        K[Camera Configurations] --> L[Detection Events]
+        L --> M[Alert Notifications]
+        L --> N[System Logs]
+        L --> O[Analytics Data]
+    end
+    
+    subgraph "Data Flow"
+        P[Camera Input] --> Q[Configuration Storage]
+        R[Detection Output] --> S[Event Logging]
+        S --> T[Alert Generation]
+        S --> U[Analytics Processing]
+    end
+```
+
+### API Architecture
+
+```mermaid
+graph TB
+    subgraph "REST API Endpoints"
+        A[GET /api/cameras] --> B[Camera Management]
+        C[POST /api/cameras] --> D[Camera Creation]
+        E[PUT /api/cameras/{name}] --> F[Camera Update]
+        G[DELETE /api/cameras/{name}] --> H[Camera Deletion]
+        
+        I[GET /api/apps/status] --> J[App Status]
+        K[POST /api/apps/{app_name}/start] --> L[App Start]
+        M[POST /api/apps/{app_name}/stop] --> N[App Stop]
+        
+        O[GET /api/models/available] --> P[Model Information]
+        Q[GET /api/analytics] --> R[Analytics Data]
+        S[GET /api/stream/{camera_name}] --> T[Video Streaming]
+    end
+    
+    subgraph "WebSocket Endpoints"
+        U[WS /ws/cameras] --> V[Real-time Camera Updates]
+        W[WS /ws/detections] --> X[Real-time Detection Events]
+        Y[WS /ws/alerts] --> Z[Real-time Alert Notifications]
+    end
+    
+    subgraph "Health & Monitoring"
+        AA[GET /api/health] --> BB[System Health]
+        CC[GET /api/system/camera-model-status] --> DD[System Status]
+        EE[POST /api/cameras/{name}/test-connection] --> FF[Connection Testing]
+    end
+```
+
+### Real-time Communication Flow
+
+```mermaid
+sequenceDiagram
+    participant F as Frontend
+    participant B as Backend API
+    participant DB as Database
+    participant C as Detection Containers
+    participant T as Telegram Bot
+
+    F->>B: Start App Request
+    B->>DB: Validate Camera Config
+    B->>C: Start Detection Container
+    C->>C: Load YOLO Model
+    C->>C: Process Camera Streams
+    
+    loop Detection Loop
+        C->>C: Frame Processing
+        C->>C: Model Inference
+        C->>C: Decision Making
+        
+        alt Detection Found
+            C->>DB: Log Detection
+            C->>T: Send Alert
+            C->>F: Update Status
+        end
+    end
+    
+    F->>B: Get Real-time Updates
+    B->>DB: Query Latest Data
+    B->>F: Return Updated Status
+```
+
+### Deployment Architecture
+
+```mermaid
+graph TB
+    subgraph "Development Environment"
+        A[Local Development] --> B[Python Virtual Environment]
+        B --> C[Local PostgreSQL]
+        B --> D[Local GPU Testing]
+    end
+    
+    subgraph "Production Environment"
+        E[Docker Compose] --> F[Container Orchestration]
+        F --> G[Multi-container Deployment]
+        G --> H[Network Management]
+        H --> I[Volume Management]
+    end
+    
+    subgraph "Infrastructure Components"
+        J[GPU Server] --> K[NVIDIA Docker Runtime]
+        L[Database Server] --> M[PostgreSQL Cluster]
+        N[Web Server] --> O[Nginx Reverse Proxy]
+        P[Monitoring] --> Q[System Metrics]
+    end
+    
+    subgraph "External Services"
+        R[Telegram Bot API] --> S[Alert Notifications]
+        T[RTSP Cameras] --> U[Video Streams]
+        V[Cloud Storage] --> W[Backup & Recovery]
+    end
+```
+
+### System Components Overview
+
+#### 1. **Frontend Components**
+- **React Application**: Modern UI with Material-UI components
+- **Camera Management**: Add, edit, delete camera configurations
+- **Live Streams**: Real-time video streaming from cameras
+- **App Status Dashboard**: Monitor detection app status
+- **Analytics Dashboard**: View detection statistics and reports
+
+#### 2. **Backend Components**
+- **FastAPI Server**: RESTful API with automatic documentation
+- **Camera Manager**: Handle camera configurations and RTSP streams
+- **Model Manager**: Manage YOLO model loading and validation
+- **Database Manager**: Handle PostgreSQL operations
+- **Alert Manager**: Manage Telegram notifications
+
+#### 3. **Detection Components**
+- **Cash Detector**: Multi-threaded cash detection with tracking
+- **Theft Detector**: Pose-based suspicious activity detection
+- **Monitor Detector**: Screen status monitoring and alerts
+- **Model Inference**: GPU-accelerated YOLO model processing
+
+#### 4. **Infrastructure Components**
+- **Docker Containers**: Isolated deployment environments
+- **PostgreSQL Database**: Reliable data storage and retrieval
+- **NVIDIA GPU**: Accelerated model inference
+- **Telegram Bot**: Real-time alert notifications
+
+### Performance Optimization Features
+
+#### 1. **GPU Acceleration**
+```python
+# CUDA device setup with memory management
+if torch.cuda.is_available():
+    device = torch.device('cuda:0')
+    torch.cuda.set_per_process_memory_fraction(0.8)
+    torch.cuda.empty_cache()
+```
+
+#### 2. **Multi-threading Architecture**
+```python
+# Thread pool for parallel processing
+self.detection_threads = {}
+for camera_id in camera_ids:
+    thread = threading.Thread(
+        target=self.process_camera, 
+        args=(camera_id,), 
+        daemon=True
+    )
+    thread.start()
+```
+
+#### 3. **Frame Skipping for Performance**
+```python
+# Process every nth frame for optimal performance
+if self.frame_counters[camera_id] % FRAME_SKIP == 0:
+    detections = self.detect_objects(frame)
+```
+
+#### 4. **Memory Management**
+```python
+# Automatic memory cleanup
+def cleanup_memory():
+    import gc
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+```
+
+### Security Features
+
+#### 1. **Authentication & Authorization**
+- API key-based authentication
+- Role-based access control
+- Secure camera credential management
+
+#### 2. **Data Protection**
+- Encrypted database connections
+- Secure RTSP stream handling
+- Protected model file access
+
+#### 3. **Network Security**
+- Docker network isolation
+- HTTPS/TLS encryption
+- Firewall configuration
 
 ## 🔗 Camera-Model Integration
 
