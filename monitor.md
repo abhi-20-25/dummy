@@ -22,9 +22,9 @@ The following diagram illustrates the high-level architecture and data flow of t
 graph TD
     subgraph "Input Sources"
         direction LR
-        CAM1[Camera 1<br>(RTSP Stream)]
-        CAM2[Camera 2<br>(RTSP Stream)]
-        CAMN[... ]
+        CAM1["Camera 1<br>(RTSP Stream)"]
+        CAM2["Camera 2<br>(RTSP Stream)"]
+        CAMN[...]
     end
 
     subgraph "MonitorDetector Application"
@@ -34,8 +34,8 @@ graph TD
         
         subgraph "Real-Time Processing (per camera)"
             direction LR
-            CT1[Camera 1 Processor<br>(YOLOv8 Detection)]
-            CT2[Camera 2 Processor<br>(YOLOv8 Detection)]
+            CT1["Camera 1 Processor<br>(YOLOv8 Detection)"]
+            CT2["Camera 2 Processor<br>(YOLOv8 Detection)"]
             CTN[...]
         end
 
