@@ -5,6 +5,8 @@
 
 A real-time, multi-camera system for detecting and tracking cash using the YOLO object detection model. The system is designed for high performance and scalability, using multithreading to process multiple camera feeds concurrently. It includes features for performance monitoring, simple object tracking, and alert notifications via Telegram.
 
+
+
 ---
 
 ## Features
@@ -44,7 +46,7 @@ This diagram outlines the system's logic using basic, universally compatible syn
 
 ```mermaid
 graph TD
-    %% Define Styles
+    %% --- Style Definitions ---
     classDef main fill:#e3f2fd,stroke:#333,stroke-width:2px;
     classDef camera fill:#e8f5e9,stroke:#333,stroke-width:2px;
     classDef decision fill:#fffde7,stroke:#f57f17,stroke-width:2px;
@@ -52,38 +54,38 @@ graph TD
     classDef io fill:#e0f7fa,stroke:#006064,stroke-width:2px;
     classDef startend fill:#ffebee,stroke:#b71c1c,stroke-width:2px;
 
-    %% Main Thread Initialization
+    %% --- Main Thread Workflow ---
     subgraph Main Thread Workflow
         A[Start]:::startend --> B[Parse CLI Arguments];
         B --> C[Create Detector Instance];
         C --> D[Setup Cameras];
         D --> E[Setup Components];
         E --> F[Setup Model];
-        F --> G[Call run() method];
+        F --> G[Call run method];
         G --> H[Start Detection Threads];
         H -- Spawns --> I(Per-Camera Thread);
-        H --> J{Running?};
+        H --> J{Is Running};
         J -- Yes --> K[Sleep and Log Status];
         K --> J;
-        J -- No / Ctrl+C --> L[Call stop_detection()];
+        J -- No or Ctrl C --> L[Call stop detection];
     end
     class A,L,M,N,O,P,Q startend;
     class B,C,D,E,F,G,H,J,K main;
 
-    %% Per-Camera Processing Thread
+    %% --- Per-Camera Processing Thread ---
     subgraph "Per-Camera Thread"
         I --> T1[/Get Frame/];
-        T1 --> T2{Frame Available?};
+        T1 --> T2{Frame Available};
         T2 -- No --> T1_wait[Wait];
         T1_wait --> T1;
-        T2 -- Yes --> T3{Process This Frame?};
+        T2 -- Yes --> T3{Process This Frame};
         T3 -- No --> T_inc[Increment Counter];
         T_inc --> T1;
         T3 -- Yes --> T4[Detect Cash with YOLO];
         T4 --> T5[Track Objects];
         T5 --> T6[Update Tracker State];
         T6 --> T7[Remove Old Tracks];
-        T7 --> T8{Alert Condition Met?};
+        T7 --> T8{Alert Condition Met};
         T8 -- Yes --> T9[/Send Alert and Log/];
         T9 --> T10;
         T8 -- No --> T10[Draw Detections];
@@ -94,8 +96,7 @@ graph TD
     class T2,T3,T8 decision;
     class T1,T9 io;
 
-
-    %% Shutdown Sequence
+    %% --- Shutdown Sequence ---
     subgraph Shutdown Sequence
         L --> M[Set running flag to False];
         M --> N[Stop Camera Captures];
