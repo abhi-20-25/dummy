@@ -5,8 +5,6 @@
 
 A real-time, multi-camera system for detecting and tracking cash using the YOLO object detection model. The system is designed for high performance and scalability, using multithreading to process multiple camera feeds concurrently. It includes features for performance monitoring, simple object tracking, and alert notifications via Telegram.
 
-
-
 ---
 
 ## Features
@@ -42,7 +40,7 @@ The system operates through the main `MultiCameraCashDetector` class, which orch
 
 ## System Flowchart
 
-This diagram outlines the two primary operational flows: the **Main Thread** for setup and control, and the parallel **Per-Camera Threads** for detection and tracking.
+This diagram outlines the system's logic using basic, universally compatible syntax to ensure it renders correctly.
 
 ```mermaid
 graph TD
@@ -56,40 +54,40 @@ graph TD
 
     %% Main Thread Initialization
     subgraph Main Thread Workflow
-        A[Start]:::startend --> B(Parse CLI Arguments);
-        B --> C(Create MultiCameraCashDetector Instance);
-        C --> D("setup_cameras()\nInitialize CameraManager");
-        D --> E("setup_components()\nInitialize Database & Telegram Notifier");
-        E --> F("setup_model()\nLoad YOLO Model from path");
-        F --> G("Call run() method");
-        G --> H("start_detection()\nStart a new thread for each camera");
-        H -- Spawns --> I(Per-Camera Processing Thread);
-        H --> J{Running? (Main Loop)};
-        J -- Yes --> K(Sleep & periodically log system status);
+        A[Start]:::startend --> B[Parse CLI Arguments];
+        B --> C[Create Detector Instance];
+        C --> D[Setup Cameras];
+        D --> E[Setup Components];
+        E --> F[Setup Model];
+        F --> G[Call run() method];
+        G --> H[Start Detection Threads];
+        H -- Spawns --> I(Per-Camera Thread);
+        H --> J{Running?};
+        J -- Yes --> K[Sleep and Log Status];
         K --> J;
-        J -- No (Ctrl+C Received) --> L("Call stop_detection()");
+        J -- No / Ctrl+C --> L[Call stop_detection()];
     end
     class A,L,M,N,O,P,Q startend;
     class B,C,D,E,F,G,H,J,K main;
 
     %% Per-Camera Processing Thread
-    subgraph "Per-Camera Processing Thread (Runs in Parallel)"
-        I --> T1[/Get Frame from Camera/];
-        T1 --> T2{Frame Available?}:::decision;
-        T2 -- No --> T1_wait(Wait briefly);
+    subgraph "Per-Camera Thread"
+        I --> T1[/Get Frame/];
+        T1 --> T2{Frame Available?};
+        T2 -- No --> T1_wait[Wait];
         T1_wait --> T1;
-        T2 -- Yes --> T3{"Process Frame?\n(Check frame_skip counter)"}:::decision;
-        T3 -- No (Skip) --> T_inc(Increment Frame Counter);
+        T2 -- Yes --> T3{Process This Frame?};
+        T3 -- No --> T_inc[Increment Counter];
         T_inc --> T1;
-        T3 -- Yes (Process) --> T4("detect_cash()\nRun YOLO inference on frame"):::process;
-        T4 --> T5("simple_track()\nMatch detections to existing tracks"):::process;
-        T5 --> T6(Update CashTracker with new/updated detections);
-        T6 --> T7(Remove tracks that have disappeared);
-        T7 --> T8{"Alert Condition Met?\n(e.g., object visible > 2s)"}:::decision;
-        T8 -- Yes --> T9("Send Telegram Alert\nLog event to database"):::io;
+        T3 -- Yes --> T4[Detect Cash with YOLO];
+        T4 --> T5[Track Objects];
+        T5 --> T6[Update Tracker State];
+        T6 --> T7[Remove Old Tracks];
+        T7 --> T8{Alert Condition Met?};
+        T8 -- Yes --> T9[/Send Alert and Log/];
         T9 --> T10;
-        T8 -- No --> T10("draw_detections()\nVisualize boxes on frame");
-        T10 --> T11(Update FPS & processing time counters);
+        T8 -- No --> T10[Draw Detections];
+        T10 --> T11[Update Performance Counters];
         T11 --> T1;
     end
     class I,T1,T_inc,T1_wait,T4,T5,T6,T7,T9,T10,T11 camera;
@@ -98,10 +96,10 @@ graph TD
 
 
     %% Shutdown Sequence
-    subgraph "Shutdown Sequence"
-        L --> M(Set main 'running' flag to False);
-        M --> N(Stop all camera capture threads);
-        N --> O(Wait for all processing threads to finish);
-        O --> P(Cleanup camera and tracker resources);
+    subgraph Shutdown Sequence
+        L --> M[Set running flag to False];
+        M --> N[Stop Camera Captures];
+        N --> O[Join All Threads];
+        O --> P[Cleanup Resources];
         P --> Q[End]:::startend;
     end
