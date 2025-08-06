@@ -1,3 +1,50 @@
+# Multi-Camera Cash Detection System
+
+![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+
+A real-time, multi-camera system for detecting and tracking cash using the YOLO object detection model. The system is designed for high performance and scalability, using multithreading to process multiple camera feeds concurrently. It includes features for performance monitoring, simple object tracking, and alert notifications via Telegram.
+
+
+
+---
+
+## Features
+
+-   **Multi-Camera Support**: Concurrently process video streams from multiple cameras.
+-   **Real-time Detection**: Utilizes a **YOLO model** for fast and accurate cash detection.
+-   **Object Tracking**: A simple centroid-based tracker to follow detected objects across frames and assign unique IDs.
+-   **Performance Optimized**:
+    -   **Multithreading**: Each camera feed is processed in a separate thread for parallel execution.
+    -   **Frame Skipping**: Configurable frame skipping to balance performance and accuracy.
+    -   **Performance Metrics**: Logs FPS and average processing time for each camera.
+-   **Alerting System**: Sends notifications with images via **Telegram** when cash is detected for a configurable duration.
+-   **Configurable & Robust**:
+    -   Easily configure model path, confidence thresholds, and other parameters.
+    -   Extensive error handling and logging for reliable operation.
+-   **Command-Line Interface**: Start the system and set the logging level easily from the terminal.
+
+---
+
+## How It Works
+
+The system operates through the main `MultiCameraCashDetector` class, which orchestrates the entire detection pipeline:
+
+1.  **Initialization**: The system first loads a pre-trained YOLO model, initializes a database logger, the optional `TelegramNotifier`, and the `CameraManager` which handles capturing frames from all configured camera sources.
+
+2.  **Detection & Tracking**: For each camera, a dedicated thread is started. This thread continuously grabs frames, passes them to the YOLO model for detection, and uses a simple tracking algorithm to associate new detections with existing object tracks, assigning a persistent ID to each object.
+
+3.  **Alert Logic**: A `CashTracker` instance for each camera monitors the tracked objects. If an object remains visible for a predefined period (e.g., `DETECTION_TIMEOUT`), it triggers an alert. The alert is logged to the database and, if configured, a notification with a snapshot is sent to a specified Telegram chat.
+
+4.  **Shutdown**: The system can be stopped gracefully with `Ctrl+C`. The `stop_detection()` method ensures all camera threads are terminated, and resources are cleaned up properly.
+
+---
+
+## System Flowchart
+
+This diagram outlines the two primary operational flows: the **Main Thread** for setup and control, and the parallel **Per-Camera Threads** for detection and tracking.
+
+```mermaid
 graph TD
     %% Define Styles
     classDef main fill:#e3f2fd,stroke:#333,stroke-width:2px;
