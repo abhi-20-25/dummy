@@ -58,16 +58,16 @@ graph TD
     subgraph Main Thread Workflow
         A[Start]:::startend --> B(Parse CLI Arguments);
         B --> C(Create MultiCameraCashDetector Instance);
-        C --> D("**setup_cameras()**\nInitialize CameraManager");
-        D --> E("**setup_components()**\nInitialize Database & Telegram Notifier");
-        E --> F("**setup_model()**\nLoad YOLO Model from path");
-        F --> G(Call **run()** method);
-        G --> H("**start_detection()**\nStart a new thread for each camera");
+        C --> D("setup_cameras()\nInitialize CameraManager");
+        D --> E("setup_components()\nInitialize Database & Telegram Notifier");
+        E --> F("setup_model()\nLoad YOLO Model from path");
+        F --> G("Call run() method");
+        G --> H("start_detection()\nStart a new thread for each camera");
         H -- Spawns --> I(Per-Camera Processing Thread);
         H --> J{Running? (Main Loop)};
         J -- Yes --> K(Sleep & periodically log system status);
         K --> J;
-        J -- No (Ctrl+C Received) --> L(Call **stop_detection()**);
+        J -- No (Ctrl+C Received) --> L("Call stop_detection()");
     end
     class A,L,M,N,O,P,Q startend;
     class B,C,D,E,F,G,H,J,K main;
@@ -81,14 +81,14 @@ graph TD
         T2 -- Yes --> T3{"Process Frame?\n(Check frame_skip counter)"}:::decision;
         T3 -- No (Skip) --> T_inc(Increment Frame Counter);
         T_inc --> T1;
-        T3 -- Yes (Process) --> T4("**detect_cash()**\nRun YOLO inference on frame"):::process;
-        T4 --> T5("**simple_track()**\nMatch detections to existing tracks"):::process;
+        T3 -- Yes (Process) --> T4("detect_cash()\nRun YOLO inference on frame"):::process;
+        T4 --> T5("simple_track()\nMatch detections to existing tracks"):::process;
         T5 --> T6(Update CashTracker with new/updated detections);
         T6 --> T7(Remove tracks that have disappeared);
         T7 --> T8{"Alert Condition Met?\n(e.g., object visible > 2s)"}:::decision;
-        T8 -- Yes --> T9("**Send Telegram Alert**\nLog event to database"):::io;
+        T8 -- Yes --> T9("Send Telegram Alert\nLog event to database"):::io;
         T9 --> T10;
-        T8 -- No --> T10("**draw_detections()**\nVisualize boxes on frame");
+        T8 -- No --> T10("draw_detections()\nVisualize boxes on frame");
         T10 --> T11(Update FPS & processing time counters);
         T11 --> T1;
     end
